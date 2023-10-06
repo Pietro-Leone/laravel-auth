@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ProjectController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,5 +28,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/admin/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     Route::delete('/admin/profile', [ProfileController::class, 'destroy'])->name('admin.profile.destroy');
 });
+
+Route::middleware(["auth", "verified"])
+    ->prefix("admin")
+    ->name("admin.")
+    ->group(function () {
+        Route::resource("projects", ProjectController::class);
+    });
 
 require __DIR__ . '/auth.php';
