@@ -45,7 +45,7 @@ class ProjectController extends Controller
 
         $project = Project::create($data);
 
-        return redirect()->route("admin.projects.show", $project->id);
+        return redirect()->route("admin.projects.show", $project->title);
     }
 
     /**
@@ -61,9 +61,9 @@ class ProjectController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(int $id): View
+    public function edit(string $title): View
     {
-        $project = Project::findOrFail($id);
+        $project = Project::where("title", $title)->first();
         
         return view("admin.projects.edit", compact("project"));
     }
@@ -71,9 +71,9 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(Request $request, string $title): RedirectResponse
     {
-        $project = Project::findOrFail($id);
+        $project = Project::where("title", $title)->first();
 
         $data = $request->validate([
             "title" => "required|string",
@@ -88,7 +88,7 @@ class ProjectController extends Controller
 
         $project->update($data);
 
-        return redirect()->route("admin.projects.show", $project->id);
+        return redirect()->route("admin.projects.show", $project->title);
     }
 
     /**

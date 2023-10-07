@@ -11,7 +11,7 @@ class Project extends Model
     use HasFactory, SoftDeletes;
 
     protected $casts =[
-        "release" => "date",
+        // "release" => "date",
     ];
     protected $fillable = [
         "title",
