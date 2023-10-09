@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProjectUpsertRequest;
 use App\Models\Project;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
@@ -30,30 +32,24 @@ class ProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ProjectUpsertRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            "title" => "required|string",
-            "description" => "required|string",
-            "thumb" => "nullable|string",
-            "release" => "required|date",
-            "language" => "nullable|string",
-            "link" => "required|string",
-        ]);
+        $data = $request->validated();
 
+        $data["slug"] = $this->generateSlug($data["title"]);
         $data["language"] = json_encode([$data["language"]]);
 
         $project = Project::create($data);
 
-        return redirect()->route("admin.projects.show", $project->title);
+        return redirect()->route("admin.projects.show", $project->slug);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $title): View
+    public function show(string $slug): View
     {
-        $project = Project::where("title", $title)->first();
+        $project = Project::where("slug", $slug)->first();
 
         return view("admin.projects.show", compact("project"));
     }
@@ -61,45 +57,59 @@ class ProjectController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $title): View
+    public function edit(string $slug): View
     {
-        $project = Project::where("title", $title)->first();
-        
+        $project = Project::where("slug", $slug)->firstOrFail();
+
         return view("admin.projects.edit", compact("project"));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $title): RedirectResponse
+    public function update(ProjectUpsertRequest $request, string $slug): RedirectResponse
     {
-        $project = Project::where("title", $title)->first();
+        $data = $request->validated();
 
-        $data = $request->validate([
-            "title" => "required|string",
-            "description" => "required|string",
-            "thumb" => "nullable|string",
-            "release" => "required|date",
-            "language" => "nullable|string",
-            "link" => "required|string",
-        ]);
+        $project = Project::where("title", $slug)->firstOrFail();
 
         $data["language"] = json_encode([$data["language"]]);
+        if ($data["title"] !== $project->title) {
+            $data["slug"] = $this->generateSlug($data["title"]);
+        }
 
         $project->update($data);
 
-        return redirect()->route("admin.projects.show", $project->title);
+        return redirect()->route("admin.projects.show", $project->slug);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(int $id)
+    public function destroy(string $slug)
     {
-        $project = Project::findOrFail($id);
+        $project = Project::where("slug", $slug)->firstOrFail();
 
         $project->delete();
 
         return redirect()->route("admin.projects.index");
+    }
+
+    protected function generateSlug($title)
+    {
+        // contatore da usare per avere un numero incrementale
+        $counter = 0;
+
+        do {
+            // creo uno slug e se il counter è maggiore di 0, concateno il counter
+            $slug = Str::slug($title) . ($counter > 0 ? "-" . $counter : "");
+
+            // cerco se esiste già un elemento con questo slug
+            $alreadyExists = Project::where("slug", $slug)->first();
+
+            $counter++;
+        } while ($alreadyExists); // finché esiste già un elemento con questo slug, ripeto il ciclo per creare uno slug nuovo
+
+        return $slug;
     }
 }

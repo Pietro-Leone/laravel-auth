@@ -11,7 +11,7 @@
         <div class="card h-100" style="width: 18rem;">
           <img src="{{$element->thumb}}" class="card-img-top object-fit-cover h-100" alt="{{$element->title}}">
           <div class="card-body">
-            <h5 class="card-title text-center"><a class="text-decoration-none text-white" href="/admin/projects/{{$element->title}}">{{$element->title}}</a></h5>
+            <h5 class="card-title text-center"><a class="text-decoration-none text-white" href="{{route("admin.projects.show", $element->slug)}}">{{$element->title}}</a></h5>
           </div>
         </div>
       </div>

@@ -5,15 +5,15 @@
     {{ __('Project') }}
   </h2>
   <div class="card p-4 mb-4 bg-dark shadow rounded-lg">
-    <form action="{{ route('admin.projects.update', $project->title) }}" method="POST">
+    <form action="{{ route('admin.projects.update', $project->slug) }}" method="POST">
       @csrf()
       @method("put")
 
       <div class="row mb-3">
         <label class="col-sm-2 col-form-label">Titolo</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control @error('title') is-invalid @enderror" value="{{old('title', $project->title)}}"
-            name="title">
+          <input type="text" class="form-control @error('title') is-invalid @enderror"
+            value="{{old('title', $project->title)}}" name="title">
           @error('title')
           <div class="invalid-feedback">{{$message}}</div>
           @enderror
@@ -34,8 +34,8 @@
       <div class="row mb-3">
         <label class="col-sm-2 col-form-label">Thumb (URL)</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control @error('thumb') is-invalid @enderror" value="{{old('thumb', $project->thumb)}}"
-            name="thumb">
+          <input type="text" class="form-control @error('thumb') is-invalid @enderror"
+            value="{{old('thumb', $project->thumb)}}" name="thumb">
           @error('thumb')
           <div class="invalid-feedback">{{$message}}</div>
           @enderror
@@ -45,8 +45,8 @@
       <div class="row mb-3">
         <label class="col-sm-2 col-form-label">Rilascio</label>
         <div class="col-sm-10">
-          <input type="date" class="form-control @error('release') is-invalid @enderror" value="{{old('release', $project->release)}}"
-            name="release">
+          <input type="date" class="form-control @error('release') is-invalid @enderror"
+            value="{{old('release', $project->release->format(" Y-m-d"))}}" name="release">
           @error('release')
           <div class="invalid-feedback">{{$message}}</div>
           @enderror
@@ -56,8 +56,8 @@
       <div class="row mb-3">
         <label class="col-sm-2 col-form-label">Lingua</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control @error('language') is-invalid @enderror" value="{{old('language', join(", ",json_decode($project["language"])))}}"
-            name="language">
+          <input type="text" class="form-control @error('language') is-invalid @enderror"
+            value="{{old('language', join(" , ",json_decode($project["language"])))}}" name="language">
           @error('language')
           <div class="invalid-feedback">{{$message}}</div>
           @enderror
@@ -67,8 +67,8 @@
       <div class="row mb-3">
         <label class="col-sm-2 col-form-label">Link</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control @error('link') is-invalid @enderror" value="{{old('link', $project->link)}}"
-            name="link">
+          <input type="text" class="form-control @error('link') is-invalid @enderror"
+            value="{{old('link', $project->link)}}" name="link">
           @error('link')
           <div class="invalid-feedback">{{$message}}</div>
           @enderror
@@ -77,7 +77,15 @@
 
       <div class="text-center">
         <a class="btn btn-secondary" href="{{ route("admin.projects.index") }}">Annulla</a>
-        <button class="btn btn-primary">Salva</button>
+        <button class="btn btn-primary" type="submit">Salva</button>
+        <form action="{{ route("admin.projects.destroy", $project->slug) }}" method="POST">
+          @csrf
+          @method("DELETE")
+
+          <button type="submit" class="btn btn-danger">Elimina</button>
+
+        </form>
+
       </div>
 
     </form>
